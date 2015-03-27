@@ -30,8 +30,15 @@ def search_spotify(artist, song):
 		logger.info("%s - %s (%s)", artist, song, track["id"])
 
 def add_to_playlist(track_id):
-	# TODO
-	# sp.user_playlist_add_tracks(username, playlist_id, track_ids)
+	results = spotify.user_playlist_tracks(username, playlist_id)
+
+	for result in results['items']:
+		if result['track']['id'] == track_id:
+			logger.debug("Track already exists: %s", track_id)
+			return
+
+	track_ids = [track_id]
+	spotify.user_playlist_add_tracks(username, playlist_id, track_ids)
 
 def setup_logger():
     formatter = logging.Formatter('%(asctime)s: %(message)s')
@@ -53,19 +60,16 @@ else:
     print "Usage: %s username playlist_id" % (sys.argv[0],)
     sys.exit()
 
-# scope = 'playlist-modify-public'
-# token = util.prompt_for_user_token(username, scope)
+scope = 'playlist-modify-public'
+token = util.prompt_for_user_token(username, scope)
 
-# if not token:
-# 	print "Can't get token for", username
-# 	sys.exit()
+if not token:
+	print "Can't get token for", username
+	sys.exit()
 
 logger = setup_logger()
 
-spotify = spotipy.Spotify()
-# sp = spotipy.Spotify(auth=token)
-# sp.trace = False
-
+spotify = spotipy.Spotify(auth=token)
 
 while True:
 	scrape_song()

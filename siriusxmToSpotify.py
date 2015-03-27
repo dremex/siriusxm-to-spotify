@@ -73,4 +73,4 @@ spotify = spotipy.Spotify(auth=token)
 
 while True:
 	scrape_song()
-	time.sleep(120)
+	time.sleep(180)

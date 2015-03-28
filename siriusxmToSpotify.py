@@ -13,10 +13,14 @@ def scrape_song():
 	response = urllib.urlopen(url);
 	data = json.loads(response.read())
 
-	artist = data["channelMetadataResponse"]["metaData"]["currentEvent"]["artists"]["name"]
-	song = data["channelMetadataResponse"]["metaData"]["currentEvent"]["song"]["name"]
+	try:
+		artist = data["channelMetadataResponse"]["metaData"]["currentEvent"]["artists"]["name"]
+		song = data["channelMetadataResponse"]["metaData"]["currentEvent"]["song"]["name"]
 
-	search_spotify(artist, song)
+		search_spotify(artist, song)
+	except Exception as err:
+		logger.debug("Error parsing response: %s", err)
+		return
 
 def search_spotify(artist, song):
 	results = spotify.search(artist + " - " + song, type='track', limit=1)
@@ -69,8 +73,8 @@ if not token:
 
 logger = setup_logger()
 
-spotify = spotipy.Spotify(auth=token)
-
 while True:
+	token = util.prompt_for_user_token(username, scope)
+	spotify = spotipy.Spotify(auth=token)
 	scrape_song()
 	time.sleep(180)
